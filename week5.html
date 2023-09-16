@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi dan List Pendaftar</title>
+    <style>
+        .tab-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registrasi dan List Pendaftar</h1>
+    <ul class="tabs">
+        <li><a href="#" class="tab-link" onclick="openTab(event, 'registrasi')">Registrasi</a></li>
+        <li><a href="#" class="tab-link" onclick="openTab(event, 'list-pendaftar')">List Pendaftar</a></li>
+    </ul>
+
+    <div id="registrasi" class="tab-content">
+        <h2>Form Registrasi</h2>
+        <form id="registration-form">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" required minlength="10"><br><br>
+
+            <label for="umur">Umur:</label>
+            <input type="number" id="umur" required min="25"><br><br>
+
+            <label for="uang-saku">Uang Saku:</label>
+            <input type="number" id="uang-saku" required min="100000" max="1000000"><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div id="list-pendaftar" class="tab-content">
+        <h2>List Pendaftar</h2>
+        <table id="pendaftar-table">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Umur</th>
+                    <th>Uang Saku</th>
+                </tr>
+            </thead>
+            <tbody id="pendaftar-list">
+            </tbody>
+        </table>
+        <p id="resume"></p>
+    </div>
+
+    <script>
+        // Objek untuk mengelola data pendaftar
+        class PendaftarManager {
+            constructor() {
+                this.pendaftarList = [];
+            }
+
+            tambahPendaftar(nama, umur, uangSaku) {
+                this.pendaftarList.push({ nama, umur, uangSaku });
+            }
+
+            hitungRataRata() {
+                let totalUmur = 0;
+                let totalUangSaku = 0;
+
+                for (const pendaftar of this.pendaftarList) {
+                    totalUmur += pendaftar.umur;
+                    totalUangSaku += pendaftar.uangSaku;
+                }
+
+                const rataRataUmur = this.pendaftarList.length > 0 ? totalUmur / this.pendaftarList.length : 0;
+                const rataRataUangSaku = this.pendaftarList.length > 0 ? totalUangSaku / this.pendaftarList.length : 0;
+
+                return { rataRataUmur, rataRataUangSaku };
+            }
+        }
+
+        const pendaftarManager = new PendaftarManager();
+
+        // Fungsi untuk membuka tab
+        function openTab(event, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (const tabContent of tabContents) {
+                tabContent.style.display = "none";
+            }
+            document.getElementById(tabName).style.display = "block";
+
+            if (tabName === 'list-pendaftar') {
+                updateListPendaftar();
+            }
+        }
+
+        // Fungsi untuk mengupdate tabel list pendaftar
+        function updateListPendaftar() {
+            const tbody = document.getElementById("pendaftar-list");
+            tbody.innerHTML = "";
+
+            for (const pendaftar of pendaftarManager.pendaftarList) {
+                const row = tbody.insertRow();
+                const cellNama = row.insertCell(0);
+                const cellUmur = row.insertCell(1);
+                const cellUangSaku = row.insertCell(2);
+
+                cellNama.innerHTML = pendaftar.nama;
+                cellUmur.innerHTML = pendaftar.umur;
+                cellUangSaku.innerHTML = pendaftar.uangSaku;
+            }
+
+            const rataRata = pendaftarManager.hitungRataRata();
+            document.getElementById("resume").innerHTML = `Rata-rata pendaftar memiliki uang saku sebesar ${rataRata.rataRataUangSaku.toFixed(2)} dengan rata-rata umur ${rataRata.rataRataUmur.toFixed(2)}`;
+        }
+
+        // Fungsi untuk menghandle submit form
+        document.getElementById("registration-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const nama = document.getElementById("nama").value;
+            const umur = parseInt(document.getElementById("umur").value);
+            const uangSaku = parseInt(document.getElementById("uang-saku").value);
+
+            if (nama.length < 10 || umur < 25 || uangSaku < 100000 || uangSaku > 1000000) {
+                alert("Data tidak memenuhi kriteria!");
+            } else {
+                pendaftarManager.tambahPendaftar(nama, umur, uangSaku);
+                document.getElementById("registration-form").reset();
+                updateListPendaftar();
+            }
+        });
+    </script>
+</body>
+</html>
